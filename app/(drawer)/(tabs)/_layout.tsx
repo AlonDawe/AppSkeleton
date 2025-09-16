@@ -3,6 +3,7 @@ import React from 'react';
 import { Pressable } from 'react-native';
 import { useNavigation } from 'expo-router';
 import { DrawerActions } from '@react-navigation/native';
+import * as Haptics from 'expo-haptics';
 
 import { HapticTab } from '@/components/haptic-tab';
 import { IconSymbol } from '@/components/ui/icon-symbol';
@@ -15,7 +16,10 @@ export default function TabLayout() {
 
   const DrawerToggle = () => (
     <Pressable
-      onPress={() => navigation.dispatch(DrawerActions.toggleDrawer())}
+      onPress={() => {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        navigation.dispatch(DrawerActions.toggleDrawer());
+      }}
       style={({ pressed }) => ({
         opacity: pressed ? 0.5 : 1,
         marginLeft: 15,
