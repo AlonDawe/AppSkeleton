@@ -4,14 +4,17 @@ import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
 
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { AuthProvider, AuthContext } from "@/contexts/authContext";
+import { useContext } from 'react';
+
 
 export const unstable_settings = {
   anchor: '(tabs)',
 };
-const isLoggedIn = false;
 
-export default function RootLayout() {
+function RootLayoutNav() {
   const colorScheme = useColorScheme();
+  const { isLoggedIn } = useContext(AuthContext);
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
@@ -26,14 +29,18 @@ export default function RootLayout() {
               <Stack.Screen name="log-in" options={{ headerShown: false }} />
               <Stack.Screen name="modal" options={{
                   presentation: 'modal',
-                  title: 'Modal',
-                  headerShown: false }} />
+                  title: 'Privacy Policy'}} />
           </Stack.Protected>
-
-
-
       </Stack>
       <StatusBar style="auto" />
     </ThemeProvider>
+  );
+}
+
+export default function RootLayout() {
+  return (
+    <AuthProvider>
+      <RootLayoutNav />
+    </AuthProvider>
   );
 }

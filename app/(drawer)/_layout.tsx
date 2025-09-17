@@ -4,9 +4,12 @@ import { Colors } from '@/constants/theme';
 import { DrawerContentScrollView, DrawerItem } from '@react-navigation/drawer';
 import { router } from 'expo-router';
 import { View, Text } from 'react-native';
+import { useContext } from 'react';
+import { AuthContext } from '@/contexts/authContext';
 
 function CustomDrawerContent(props: any) {
     const colorScheme = useColorScheme();
+    const { logOut } = useContext(AuthContext);
 
     return (
         <DrawerContentScrollView {...props}>
@@ -37,6 +40,12 @@ function CustomDrawerContent(props: any) {
                 onPress={() => router.push('/(drawer)/(tabs)/settings')}
                 activeTintColor={Colors[colorScheme ?? 'light'].tint}
                 inactiveTintColor={Colors[colorScheme ?? 'light'].tabIconDefault}
+            />
+            <DrawerItem
+                label="Sign Out"
+                onPress={logOut}
+                activeTintColor="#ff3b30"
+                inactiveTintColor="#ff3b30"
             />
         </DrawerContentScrollView>
     );

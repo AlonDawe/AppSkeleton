@@ -1,14 +1,23 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Pressable } from 'react-native';
 import { Link } from 'expo-router';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
+import { useContext } from 'react';
+import { AuthContext } from '@/contexts/authContext';
 
 export default function LoginScreen() {
+  const { logIn } = useContext(AuthContext);
+
   return (
     <ThemedView style={styles.container}>
       <ThemedView style={styles.content}>
         <ThemedText type="title">Log-In</ThemedText>
         <ThemedText>App Log-In goes here.</ThemedText>
+
+        <Pressable style={styles.loginButton} onPress={logIn}>
+          <ThemedText style={styles.loginButtonText}>Login (Test)</ThemedText>
+        </Pressable>
+
         <ThemedView style={styles.linkContainer}>
           <ThemedText>Don't have an account? </ThemedText>
           <Link href="/sign-up">
@@ -42,5 +51,16 @@ const styles = StyleSheet.create({
   },
   privacyLink: {
     marginBottom: 20,
+  },
+  loginButton: {
+    backgroundColor: '#007AFF',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 5,
+    marginTop: 20,
+  },
+  loginButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
   },
 });
