@@ -1,21 +1,157 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Pressable, TextInput, ScrollView } from 'react-native';
 import { Link } from 'expo-router';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
+import { IconSymbol } from '@/components/ui/icon-symbol';
+import { useContext, useState } from 'react';
+import { AuthContext } from '@/contexts/authContext';
 
 export default function SignupScreen() {
+  const { logIn } = useContext(AuthContext);
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+
+  const handleSignup = () => {
+    // Basic validation
+    if (!firstName.trim()) {
+      alert('Please enter your first name');
+      return;
+    }
+
+    if (!lastName.trim()) {
+      alert('Please enter your last name');
+      return;
+    }
+
+    if (!email.trim()) {
+      alert('Please enter your email address');
+      return;
+    }
+
+    if (!email.includes('@')) {
+      alert('Please enter a valid email address');
+      return;
+    }
+
+    if (!password.trim()) {
+      alert('Please enter your password');
+      return;
+    }
+
+    if (password.length < 6) {
+      alert('Password must be at least 6 characters');
+      return;
+    }
+
+    if (!confirmPassword.trim()) {
+      alert('Please confirm your password');
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      alert('Passwords do not match');
+      return;
+    }
+
+    // For now, just log them in after successful signup
+    logIn();
+  };
+
   return (
     <ThemedView style={styles.container}>
-      <ThemedView style={styles.content}>
-        <ThemedText type="title">Sign-Up</ThemedText>
-        <ThemedText>App Sign-Up goes here.</ThemedText>
-        <ThemedView style={styles.linkContainer}>
-          <ThemedText>Already have an account? </ThemedText>
-          <Link href="/log-in">
-            <ThemedText type="link">Log-in</ThemedText>
-          </Link>
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
+        <ThemedView style={styles.content}>
+          <ThemedText type="title">Create Account</ThemedText>
+          <ThemedText style={styles.subtitle}>Sign up to get started</ThemedText>
+        <ThemedView style={styles.formContainer}>
+
+          <ThemedView style={styles.inputContainer}>
+            <IconSymbol name="person" size={20} color="#666" style={styles.icon} />
+            <TextInput
+              style={styles.input}
+              placeholder="First Name"
+              value={firstName}
+              onChangeText={setFirstName}
+              autoComplete="given-name"
+              placeholderTextColor="#666"
+            />
+          </ThemedView>
+
+          <ThemedView style={styles.lastNameContainer}>
+            <IconSymbol name="person" size={20} color="#666" style={styles.icon} />
+            <TextInput
+              style={styles.input}
+              placeholder="Last Name"
+              value={lastName}
+              onChangeText={setLastName}
+              autoComplete="family-name"
+              placeholderTextColor="#666"
+            />
+          </ThemedView>
+
+          <ThemedView style={styles.inputContainer}>
+            <IconSymbol name="envelope" size={20} color="#666" style={styles.icon} />
+            <TextInput
+              style={styles.input}
+              placeholder="Email"
+              value={email}
+              keyboardType="email-address"
+              onChangeText={setEmail}
+              autoCapitalize="none"
+              autoComplete="email"
+              placeholderTextColor="#666"
+            />
+          </ThemedView>
+
+          <ThemedView style={styles.inputContainer}>
+            <IconSymbol name="lock" size={20} color="#666" style={styles.icon} />
+            <TextInput
+              style={styles.input}
+              placeholder="Password"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry
+              autoComplete="new-password"
+              placeholderTextColor="#666"
+            />
+          </ThemedView>
+
+          <ThemedView style={styles.inputContainer}>
+            <IconSymbol name="lock" size={20} color="#666" style={styles.icon} />
+            <TextInput
+              style={styles.input}
+              placeholder="Confirm Password"
+              value={confirmPassword}
+              onChangeText={setConfirmPassword}
+              secureTextEntry
+              autoComplete="new-password"
+              placeholderTextColor="#666"
+            />
+          </ThemedView>
+
+          <Pressable style={styles.signupButton} onPress={handleSignup}>
+            <ThemedText style={styles.signupButtonText}>Sign Up</ThemedText>
+          </Pressable>
+
+          </ThemedView>
+
+          <ThemedView style={styles.linkContainer}>
+            <ThemedText>Already have an account? </ThemedText>
+            <Link href="/log-in">
+              <ThemedText type="link">Log-in</ThemedText>
+            </Link>
+          </ThemedView>
         </ThemedView>
-      </ThemedView>
+      </ScrollView>
+
       <Link href="/modal" style={styles.privacyLink}>
         <ThemedText type="link">Privacy Policy</ThemedText>
       </Link>
@@ -30,6 +166,16 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     padding: 20,
   },
+  scrollView: {
+    flex: 1,
+    width: '100%',
+  },
+  scrollContent: {
+    flexGrow: 1,
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingBottom: 20,
+  },
   content: {
     flex: 1,
     alignItems: 'center',
@@ -42,5 +188,52 @@ const styles = StyleSheet.create({
   },
   privacyLink: {
     marginBottom: 20,
+  },
+  signupButton: {
+    backgroundColor: '#0a7ea4',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 8,
+    marginTop: 20,
+    alignItems: 'center',
+  },
+  signupButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+  },
+  subtitle: {
+    marginBottom: 30,
+    textAlign: 'center',
+  },
+  formContainer: {
+    width: '100%',
+    marginBottom: 20,
+  },
+  input: {
+    flex: 1,
+    height: '100%',
+  },
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '100%',
+    height: 50,
+    backgroundColor: '#f1f1f1',
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    marginBottom: 20,
+  },
+  lastNameContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '100%',
+    height: 50,
+    backgroundColor: '#f1f1f1',
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    marginBottom: 40,
+  },
+  icon: {
+    marginRight: 20,
   },
 });

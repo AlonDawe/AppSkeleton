@@ -1,4 +1,4 @@
-import { StyleSheet, Pressable, TextInput } from 'react-native';
+import { StyleSheet, Pressable, TextInput, ScrollView } from 'react-native';
 import { Link } from 'expo-router';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
@@ -12,55 +12,84 @@ export default function LoginScreen() {
   const [password, setPassword] = useState('');
 
   const handleLogin = () => {
+    // Basic validation
+    if (!email.trim()) {
+      alert('Please enter your email address');
+      return;
+    }
+
+    if (!email.includes('@')) {
+      alert('Please enter a valid email address');
+      return;
+    }
+
+    if (!password.trim()) {
+      alert('Please enter your password');
+      return;
+    }
+
+    if (password.length < 6) {
+      alert('Password must be at least 6 characters');
+      return;
+    }
+
     logIn();
   };
 
   return (
     <ThemedView style={styles.container}>
-      <ThemedView style={styles.content}>
-        <ThemedText type="title">Welcome Back</ThemedText>
-        <ThemedText style={styles.subtitle}>Sign in to your account</ThemedText>
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
+        <ThemedView style={styles.content}>
+          <ThemedText type="title">Welcome Back</ThemedText>
+          <ThemedText style={styles.subtitle}>Sign in to your account</ThemedText>
 
-        <ThemedView style={styles.formContainer}>
-          <ThemedView style={styles.inputContainer}>
-            <IconSymbol name="envelope" size={20} color="#666" style={styles.icon} />
-            <TextInput
-              style={styles.input}
-              placeholder="Email"
-              value={email}
-              keyboardType="email-address"
-              onChangeText={setEmail}
-              autoCapitalize="none"
-              autoComplete="email"
-              placeholderTextColor="#666"
-            />
+          <ThemedView style={styles.formContainer}>
+            <ThemedView style={styles.inputContainer}>
+              <IconSymbol name="envelope" size={20} color="#666" style={styles.icon} />
+              <TextInput
+                style={styles.input}
+                placeholder="Email"
+                value={email}
+                keyboardType="email-address"
+                onChangeText={setEmail}
+                autoCapitalize="none"
+                autoComplete="email"
+                placeholderTextColor="#666"
+              />
+            </ThemedView>
+
+            <ThemedView style={styles.inputContainer}>
+              <IconSymbol name="lock" size={20} color="#666" style={styles.icon} />
+              <TextInput
+                style={styles.input}
+                placeholder="Password"
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry
+                autoComplete="current-password"
+                placeholderTextColor="#666"
+              />
+            </ThemedView>
+
+            <Pressable style={styles.loginButton} onPress={handleLogin}>
+              <ThemedText style={styles.loginButtonText}>Log-in</ThemedText>
+            </Pressable>
           </ThemedView>
 
-          <ThemedView style={styles.inputContainer}>
-            <IconSymbol name="lock" size={20} color="#666" style={styles.icon} />
-            <TextInput
-              style={styles.input}
-              placeholder="Password"
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry
-              autoComplete="current-password"
-              placeholderTextColor="#666"
-            />
+          <ThemedView style={styles.linkContainer}>
+            <ThemedText>Don't have an account? </ThemedText>
+            <Link href="/sign-up">
+              <ThemedText type="link">Sign-up</ThemedText>
+            </Link>
           </ThemedView>
-
-          <Pressable style={styles.loginButton} onPress={handleLogin}>
-            <ThemedText style={styles.loginButtonText}>Log-in</ThemedText>
-          </Pressable>
         </ThemedView>
+      </ScrollView>
 
-        <ThemedView style={styles.linkContainer}>
-          <ThemedText>Don't have an account? </ThemedText>
-          <Link href="/sign-up">
-            <ThemedText type="link">Sign-up</ThemedText>
-          </Link>
-        </ThemedView>
-      </ThemedView>
       <Link href="/modal" style={styles.privacyLink}>
         <ThemedText type="link">Privacy Policy</ThemedText>
       </Link>
@@ -74,6 +103,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: 20,
+  },
+  scrollView: {
+    flex: 1,
+    width: '100%',
+  },
+  scrollContent: {
+    flexGrow: 1,
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingBottom: 20,
   },
   content: {
     flex: 1,
