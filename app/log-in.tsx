@@ -1,22 +1,58 @@
-import { StyleSheet, Pressable } from 'react-native';
+import { StyleSheet, Pressable, TextInput } from 'react-native';
 import { Link } from 'expo-router';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { useContext } from 'react';
+import { IconSymbol } from '@/components/ui/icon-symbol';
+import {useContext, useState} from 'react';
 import { AuthContext } from '@/contexts/authContext';
 
 export default function LoginScreen() {
   const { logIn } = useContext(AuthContext);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const handleLogin = () => {
+    logIn();
+  };
 
   return (
     <ThemedView style={styles.container}>
       <ThemedView style={styles.content}>
-        <ThemedText type="title">Log-In</ThemedText>
-        <ThemedText>App Log-In goes here.</ThemedText>
+        <ThemedText type="title">Welcome Back</ThemedText>
+        <ThemedText style={styles.subtitle}>Sign in to your account</ThemedText>
 
-        <Pressable style={styles.loginButton} onPress={logIn}>
-          <ThemedText style={styles.loginButtonText}>Login (Test)</ThemedText>
-        </Pressable>
+        <ThemedView style={styles.formContainer}>
+          <ThemedView style={styles.inputContainer}>
+            <IconSymbol name="envelope" size={20} color="#666" style={styles.icon} />
+            <TextInput
+              style={styles.input}
+              placeholder="Email"
+              value={email}
+              keyboardType="email-address"
+              onChangeText={setEmail}
+              autoCapitalize="none"
+              autoComplete="email"
+              placeholderTextColor="#666"
+            />
+          </ThemedView>
+
+          <ThemedView style={styles.inputContainer}>
+            <IconSymbol name="lock" size={20} color="#666" style={styles.icon} />
+            <TextInput
+              style={styles.input}
+              placeholder="Password"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry
+              autoComplete="current-password"
+              placeholderTextColor="#666"
+            />
+          </ThemedView>
+
+          <Pressable style={styles.loginButton} onPress={handleLogin}>
+            <ThemedText style={styles.loginButtonText}>Log-in</ThemedText>
+          </Pressable>
+        </ThemedView>
 
         <ThemedView style={styles.linkContainer}>
           <ThemedText>Don't have an account? </ThemedText>
@@ -53,14 +89,41 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   loginButton: {
-    backgroundColor: '#007AFF',
+    backgroundColor: '#0a7ea4',
     paddingHorizontal: 20,
     paddingVertical: 10,
-    borderRadius: 5,
+    borderRadius: 8,
     marginTop: 20,
+    alignItems: 'center',
   },
   loginButtonText: {
     color: 'white',
     fontWeight: 'bold',
   },
+  subtitle: {
+    marginBottom: 30,
+    textAlign: 'center',
+  },
+  formContainer: {
+    width: '100%',
+    marginBottom: 20,
+  },
+  input: {
+        flex: 1,
+        height: '100%',
+    },
+
+    inputContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        width: '100%',
+        height: 50,
+        backgroundColor: '#f1f1f1',
+        borderRadius: 8,
+        paddingHorizontal: 10,
+        marginBottom: 20,
+    },
+    icon: {
+        marginRight: 20,
+    },
 });

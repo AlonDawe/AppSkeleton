@@ -1,7 +1,6 @@
-import { Tabs } from 'expo-router';
+import { Tabs, useNavigation } from 'expo-router';
 import React from 'react';
 import { Pressable } from 'react-native';
-import { useNavigation } from 'expo-router';
 import { DrawerActions } from '@react-navigation/native';
 import * as Haptics from 'expo-haptics';
 
