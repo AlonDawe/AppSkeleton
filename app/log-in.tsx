@@ -4,14 +4,14 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import {useContext, useState} from 'react';
-import { AuthContext } from '@/contexts/authContext';
+import { AuthContext, getFirebaseErrorMessage } from '@/contexts/authContext';
 
 export default function LoginScreen() {
-  const { logIn } = useContext(AuthContext);
+  const { logIn, error, isLoading } = useContext(AuthContext);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     // Basic validation
     if (!email.trim()) {
       alert('Please enter your email address');
@@ -33,7 +33,12 @@ export default function LoginScreen() {
       return;
     }
 
-    logIn();
+    try {
+      await logIn(email, password);
+    } catch (error) {
+      // Error is already handled in the context
+      console.log('Login failed:', error);
+    }
   };
 
   return (
@@ -49,6 +54,12 @@ export default function LoginScreen() {
           <ThemedText style={styles.subtitle}>Sign in to your account</ThemedText>
 
           <ThemedView style={styles.formContainer}>
+            {error && (
+              <ThemedView style={styles.errorContainer}>
+                <ThemedText style={styles.errorText}>{getFirebaseErrorMessage(error)}</ThemedText>
+              </ThemedView>
+            )}
+
             <ThemedView style={styles.inputContainer}>
               <IconSymbol name="envelope" size={20} color="#666" style={styles.icon} />
               <TextInput
@@ -164,5 +175,17 @@ const styles = StyleSheet.create({
     },
     icon: {
         marginRight: 20,
+    },
+    errorContainer: {
+        backgroundColor: '#ffebee',
+        padding: 12,
+        borderRadius: 8,
+        marginBottom: 16,
+        width: '100%',
+    },
+    errorText: {
+        color: '#c62828',
+        fontSize: 14,
+        textAlign: 'center',
     },
 });

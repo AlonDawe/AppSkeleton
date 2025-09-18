@@ -1,11 +1,46 @@
 import {createContext, PropsWithChildren, useEffect, useState} from "react";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {
+    signInWithEmailAndPassword,
+    createUserWithEmailAndPassword,
+    signOut,
+    onAuthStateChanged,
+    User
+} from 'firebase/auth';
+import { doc, setDoc } from 'firebase/firestore';
+import { auth, db } from '@/config/firebase';
+
+export const getFirebaseErrorMessage = (errorCode: string): string => {
+    switch (errorCode) {
+        case 'auth/email-already-in-use':
+            return 'This email address is already registered. Please use a different email or try logging in.';
+        case 'auth/weak-password':
+            return 'Password is too weak. Please choose a stronger password.';
+        case 'auth/invalid-email':
+            return 'Please enter a valid email address.';
+        case 'auth/user-not-found':
+            return 'No account found with this email address.';
+        case 'auth/wrong-password':
+            return 'Incorrect password. Please try again.';
+        case 'auth/invalid-credential':
+            return 'Invalid email or password. Please check your credentials and try again.';
+        case 'auth/too-many-requests':
+            return 'Too many failed attempts. Please try again later.';
+        case 'auth/network-request-failed':
+            return 'Network error. Please check your internet connection and try again.';
+        default:
+            return 'An error occurred. Please try again.';
+    }
+};
 
 type AuthState = {
     isLoggedIn: boolean;
     isLoading: boolean;
-    logIn: () => void;
-    logOut: () => void;
+    user: User | null;
+    logIn: (email: string, password: string) => Promise<void>;
+    signUp: (email: string, password: string, firstName: string, lastName: string) => Promise<void>;
+    logOut: () => Promise<void>;
+    error: string | null;
 };
 
 const authStorageKey = "auth-key";
@@ -13,13 +48,18 @@ const authStorageKey = "auth-key";
 export const AuthContext = createContext<AuthState>({
     isLoggedIn: false,
     isLoading: true,
-    logIn: () => {},
-    logOut: () => {},
+    user: null,
+    logIn: async () => {},
+    signUp: async () => {},
+    logOut: async () => {},
+    error: null,
 });
 
 export function AuthProvider({ children }: PropsWithChildren ) {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    const [user, setUser] = useState<User | null>(null);
+    const [error, setError] = useState(null);
 
     const storeAuthState = async (newState: {isLoggedIn: boolean}) => {
         try {
@@ -31,34 +71,84 @@ export function AuthProvider({ children }: PropsWithChildren ) {
         }
     };
 
-    const logIn= () => {
-        setIsLoggedIn(true);
-        storeAuthState({ isLoggedIn: true });
+    const logIn = async (email: string, password: string) => {
+        try {
+            setError(null);
+            setIsLoading(true);
+
+            const userCredential = await signInWithEmailAndPassword(auth, email, password);
+            setUser(userCredential.user);
+            setIsLoggedIn(true);
+
+        } catch (error: any) {
+            setError(error.message);
+            console.log('Login error:', error.message);
+        } finally {
+            setIsLoading(false);
+        }
     };
-    const logOut= () => {
-        setIsLoggedIn(false);
-        storeAuthState({ isLoggedIn: false });
+
+    const signUp = async (email: string, password: string, firstName: string, lastName: string) => {
+        try {
+            setError(null);
+            setIsLoading(true);
+
+            // 1. Create Firebase user
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+
+            // 2. Save additional profile data to Firestore
+            await setDoc(doc(db, 'users', userCredential.user.uid), {
+                firstName: firstName,
+                lastName: lastName,
+                email: email,
+                createdAt: new Date()
+            });
+
+            setUser(userCredential.user);
+            setIsLoggedIn(true);
+
+        } catch (error: any) {
+            setError(error.message);
+            console.log('Sign up error:', error.message);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const logOut = async () => {
+        try {
+            setError(null);
+            setIsLoading(true);
+
+            await signOut(auth);
+            setUser(null);
+            setIsLoggedIn(false);
+
+        } catch (error: any) {
+            setError(error.message);
+            console.log('Logout error:', error.message);
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     useEffect(() => {
-        const getAuthFromStorage = async () => {
-            try {
-                const value = await AsyncStorage.getItem(authStorageKey);
-                if (value !== null) {
-                    const auth = JSON.parse(value);
-                    setIsLoggedIn(auth.isLoggedIn);
-                }
-            } catch (error) {
-                console.log("Error fetching auth from persistent storage: ", error);
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
+            if (user) {
+                setUser(user);
+                setIsLoggedIn(true);
+            } else {
+                setUser(null);
+                setIsLoggedIn(false);
             }
             setIsLoading(false);
-        }
-        getAuthFromStorage();
+        });
 
+        return unsubscribe; // Cleanup listener on unmount
     }, []);
 
     return (
-        <AuthContext.Provider value={{ isLoggedIn, isLoading, logIn, logOut }}>
+        <AuthContext.Provider value={{ isLoggedIn, isLoading, user, logIn, signUp, logOut, error }}>
             {children}
         </AuthContext.Provider>
     );

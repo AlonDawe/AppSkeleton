@@ -4,17 +4,17 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useContext, useState } from 'react';
-import { AuthContext } from '@/contexts/authContext';
+import { AuthContext, getFirebaseErrorMessage } from '@/contexts/authContext';
 
 export default function SignupScreen() {
-  const { logIn } = useContext(AuthContext);
+  const { signUp, error, isLoading } = useContext(AuthContext);
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
-  const handleSignup = () => {
+  const handleSignup = async () => {
     // Basic validation
     if (!firstName.trim()) {
       alert('Please enter your first name');
@@ -56,8 +56,12 @@ export default function SignupScreen() {
       return;
     }
 
-    // For now, just log them in after successful signup
-    logIn();
+    try {
+      await signUp(email, password, firstName, lastName);
+    } catch (error) {
+      // Error is already handled in the context
+      console.log('Sign up failed:', error);
+    }
   };
 
   return (
@@ -72,6 +76,11 @@ export default function SignupScreen() {
           <ThemedText type="title">Create Account</ThemedText>
           <ThemedText style={styles.subtitle}>Sign up to get started</ThemedText>
         <ThemedView style={styles.formContainer}>
+          {error && (
+            <ThemedView style={styles.errorContainer}>
+              <ThemedText style={styles.errorText}>{getFirebaseErrorMessage(error)}</ThemedText>
+            </ThemedView>
+          )}
 
           <ThemedView style={styles.inputContainer}>
             <IconSymbol name="person" size={20} color="#666" style={styles.icon} />
@@ -235,5 +244,17 @@ const styles = StyleSheet.create({
   },
   icon: {
     marginRight: 20,
+  },
+  errorContainer: {
+    backgroundColor: '#ffebee',
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 16,
+    width: '100%',
+  },
+  errorText: {
+    color: '#c62828',
+    fontSize: 14,
+    textAlign: 'center',
   },
 });
