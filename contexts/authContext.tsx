@@ -8,7 +8,7 @@ import {
     sendPasswordResetEmail,
     User
 } from 'firebase/auth';
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
 import { auth, db } from '@/config/firebase';
 
 export const getFirebaseErrorMessage = (errorCode: string): string => {
@@ -34,6 +34,15 @@ export const getFirebaseErrorMessage = (errorCode: string): string => {
     }
 };
 
+type UserProfile = {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phoneNumber: string;
+    country: string;
+    createdAt?: any;
+};
+
 type AuthState = {
     isLoggedIn: boolean;
     isLoading: boolean;
@@ -44,9 +53,13 @@ type AuthState = {
     resetPassword: (email: string) => Promise<void>;
     clearError: () => void;
     error: string | null;
+    getUserProfile: () => Promise<UserProfile | null>;
+    updateUserProfile: (profile: Partial<UserProfile>) => Promise<void>;
 };
 
 const authStorageKey = "auth-key";
+
+export type { UserProfile };
 
 export const AuthContext = createContext<AuthState>({
     isLoggedIn: false,
@@ -58,6 +71,8 @@ export const AuthContext = createContext<AuthState>({
     resetPassword: async () => {},
     clearError: () => {},
     error: null,
+    getUserProfile: async () => null,
+    updateUserProfile: async () => {},
 });
 
 export function AuthProvider({ children }: PropsWithChildren ) {
@@ -163,6 +178,43 @@ export function AuthProvider({ children }: PropsWithChildren ) {
         }
     };
 
+    const getUserProfile = async (): Promise<UserProfile | null> => {
+        try {
+            if (!user?.uid) return null;
+
+            setError(null);
+
+            const userDoc = await getDoc(doc(db, 'users', user.uid));
+            if (userDoc.exists()) {
+                return userDoc.data() as UserProfile;
+            }
+            return null;
+        } catch (error: any) {
+            console.log('Error fetching user profile:', error.message);
+            setError('Error fetching profile data');
+            return null;
+        }
+    };
+
+    const updateUserProfile = async (profile: Partial<UserProfile>) => {
+        try {
+            if (!user?.uid) throw new Error('No user logged in');
+
+            setError(null);
+            setIsLoading(true);
+
+            await updateDoc(doc(db, 'users', user.uid), profile);
+            console.log('Profile updated successfully');
+
+        } catch (error: any) {
+            console.log('Error updating profile:', error.message);
+            setError('Error updating profile');
+            throw error;
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (user) => {
             if (user) {
@@ -179,7 +231,7 @@ export function AuthProvider({ children }: PropsWithChildren ) {
     }, []);
 
     return (
-        <AuthContext.Provider value={{ isLoggedIn, isLoading, user, logIn, signUp, logOut, resetPassword, clearError, error }}>
+        <AuthContext.Provider value={{ isLoggedIn, isLoading, user, logIn, signUp, logOut, resetPassword, clearError, error, getUserProfile, updateUserProfile }}>
             {children}
         </AuthContext.Provider>
     );

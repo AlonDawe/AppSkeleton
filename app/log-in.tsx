@@ -7,7 +7,7 @@ import {useContext, useState} from 'react';
 import { AuthContext } from '@/contexts/authContext';
 
 export default function LoginScreen() {
-  const { logIn, error, isLoading, clearError, resetPassword } = useContext(AuthContext);
+  const { logIn, error, clearError, resetPassword } = useContext(AuthContext);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -131,7 +131,7 @@ export default function LoginScreen() {
           </ThemedView>
 
           <ThemedView style={styles.linkContainer}>
-            <ThemedText>Don't have an account? </ThemedText>
+            <ThemedText>Don&apos;t have an account? </ThemedText>
             <Link href="/sign-up">
               <ThemedText type="link">Sign-up</ThemedText>
             </Link>

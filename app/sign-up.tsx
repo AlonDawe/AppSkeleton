@@ -7,7 +7,7 @@ import { useContext, useState } from 'react';
 import { AuthContext } from '@/contexts/authContext';
 
 export default function SignupScreen() {
-  const { signUp, error, isLoading, clearError } = useContext(AuthContext);
+  const { signUp, error, clearError } = useContext(AuthContext);
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
