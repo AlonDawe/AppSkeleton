@@ -4,10 +4,10 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import {useContext, useState} from 'react';
-import { AuthContext, getFirebaseErrorMessage } from '@/contexts/authContext';
+import { AuthContext } from '@/contexts/authContext';
 
 export default function LoginScreen() {
-  const { logIn, error, isLoading } = useContext(AuthContext);
+  const { logIn, error, isLoading, clearError } = useContext(AuthContext);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
@@ -56,7 +56,7 @@ export default function LoginScreen() {
           <ThemedView style={styles.formContainer}>
             {error && (
               <ThemedView style={styles.errorContainer}>
-                <ThemedText style={styles.errorText}>{getFirebaseErrorMessage(error)}</ThemedText>
+                <ThemedText style={styles.errorText}>{error}</ThemedText>
               </ThemedView>
             )}
 
@@ -67,7 +67,10 @@ export default function LoginScreen() {
                 placeholder="Email"
                 value={email}
                 keyboardType="email-address"
-                onChangeText={setEmail}
+                onChangeText={(text) => {
+                  setEmail(text);
+                  if (error) clearError();
+                }}
                 autoCapitalize="none"
                 autoComplete="email"
                 placeholderTextColor="#666"
@@ -80,7 +83,10 @@ export default function LoginScreen() {
                 style={styles.input}
                 placeholder="Password"
                 value={password}
-                onChangeText={setPassword}
+                onChangeText={(text) => {
+                  setPassword(text);
+                  if (error) clearError();
+                }}
                 secureTextEntry
                 autoComplete="current-password"
                 placeholderTextColor="#666"

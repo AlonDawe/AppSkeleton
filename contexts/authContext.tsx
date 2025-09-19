@@ -40,6 +40,7 @@ type AuthState = {
     logIn: (email: string, password: string) => Promise<void>;
     signUp: (email: string, password: string, firstName: string, lastName: string) => Promise<void>;
     logOut: () => Promise<void>;
+    clearError: () => void;
     error: string | null;
 };
 
@@ -52,6 +53,7 @@ export const AuthContext = createContext<AuthState>({
     logIn: async () => {},
     signUp: async () => {},
     logOut: async () => {},
+    clearError: () => {},
     error: null,
 });
 
@@ -59,7 +61,7 @@ export function AuthProvider({ children }: PropsWithChildren ) {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [user, setUser] = useState<User | null>(null);
-    const [error, setError] = useState(null);
+    const [error, setError] = useState<string | null>(null);
 
     const storeAuthState = async (newState: {isLoggedIn: boolean}) => {
         try {
@@ -69,6 +71,10 @@ export function AuthProvider({ children }: PropsWithChildren ) {
         } catch (error) {
             console.log("Error saving the isLoggedIn state in persistent storage: ",error);
         }
+    };
+
+    const clearError = () => {
+        setError(null);
     };
 
     const logIn = async (email: string, password: string) => {
@@ -81,7 +87,7 @@ export function AuthProvider({ children }: PropsWithChildren ) {
             setIsLoggedIn(true);
 
         } catch (error: any) {
-            setError(error.message);
+            setError(getFirebaseErrorMessage(error.code));
             console.log('Login error:', error.message);
         } finally {
             setIsLoading(false);
@@ -108,7 +114,7 @@ export function AuthProvider({ children }: PropsWithChildren ) {
             setIsLoggedIn(true);
 
         } catch (error: any) {
-            setError(error.message);
+            setError(getFirebaseErrorMessage(error.code));
             console.log('Sign up error:', error.message);
         } finally {
             setIsLoading(false);
@@ -148,7 +154,7 @@ export function AuthProvider({ children }: PropsWithChildren ) {
     }, []);
 
     return (
-        <AuthContext.Provider value={{ isLoggedIn, isLoading, user, logIn, signUp, logOut, error }}>
+        <AuthContext.Provider value={{ isLoggedIn, isLoading, user, logIn, signUp, logOut, clearError, error }}>
             {children}
         </AuthContext.Provider>
     );

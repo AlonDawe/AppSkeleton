@@ -4,10 +4,10 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useContext, useState } from 'react';
-import { AuthContext, getFirebaseErrorMessage } from '@/contexts/authContext';
+import { AuthContext } from '@/contexts/authContext';
 
 export default function SignupScreen() {
-  const { signUp, error, isLoading } = useContext(AuthContext);
+  const { signUp, error, isLoading, clearError } = useContext(AuthContext);
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
@@ -78,7 +78,7 @@ export default function SignupScreen() {
         <ThemedView style={styles.formContainer}>
           {error && (
             <ThemedView style={styles.errorContainer}>
-              <ThemedText style={styles.errorText}>{getFirebaseErrorMessage(error)}</ThemedText>
+              <ThemedText style={styles.errorText}>{error}</ThemedText>
             </ThemedView>
           )}
 
@@ -88,7 +88,10 @@ export default function SignupScreen() {
               style={styles.input}
               placeholder="First Name"
               value={firstName}
-              onChangeText={setFirstName}
+              onChangeText={(text) => {
+                setFirstName(text);
+                if (error) clearError();
+              }}
               autoComplete="given-name"
               placeholderTextColor="#666"
             />
@@ -100,7 +103,10 @@ export default function SignupScreen() {
               style={styles.input}
               placeholder="Last Name"
               value={lastName}
-              onChangeText={setLastName}
+              onChangeText={(text) => {
+                setLastName(text);
+                if (error) clearError();
+              }}
               autoComplete="family-name"
               placeholderTextColor="#666"
             />
@@ -113,7 +119,10 @@ export default function SignupScreen() {
               placeholder="Email"
               value={email}
               keyboardType="email-address"
-              onChangeText={setEmail}
+              onChangeText={(text) => {
+                setEmail(text);
+                if (error) clearError();
+              }}
               autoCapitalize="none"
               autoComplete="email"
               placeholderTextColor="#666"
@@ -126,7 +135,10 @@ export default function SignupScreen() {
               style={styles.input}
               placeholder="Password"
               value={password}
-              onChangeText={setPassword}
+              onChangeText={(text) => {
+                setPassword(text);
+                if (error) clearError();
+              }}
               secureTextEntry
               autoComplete="new-password"
               placeholderTextColor="#666"
@@ -139,7 +151,10 @@ export default function SignupScreen() {
               style={styles.input}
               placeholder="Confirm Password"
               value={confirmPassword}
-              onChangeText={setConfirmPassword}
+              onChangeText={(text) => {
+                setConfirmPassword(text);
+                if (error) clearError();
+              }}
               secureTextEntry
               autoComplete="new-password"
               placeholderTextColor="#666"
