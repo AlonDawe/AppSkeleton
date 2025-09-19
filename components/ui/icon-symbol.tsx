@@ -22,6 +22,11 @@ const MAPPING = {
     'envelope': 'email',
     'lock': 'lock',
     'person': 'person',
+    'person.fill': 'account-circle',
+    'gearshape.fill': 'settings',
+    'rectangle.portrait.and.arrow.right': 'logout',
+    'eye': 'visibility',
+    'eye.slash': 'visibility-off',
 } as IconMapping;
 
 /**

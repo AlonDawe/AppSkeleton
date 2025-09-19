@@ -7,9 +7,10 @@ import {useContext, useState} from 'react';
 import { AuthContext } from '@/contexts/authContext';
 
 export default function LoginScreen() {
-  const { logIn, error, isLoading, clearError } = useContext(AuthContext);
+  const { logIn, error, isLoading, clearError, resetPassword } = useContext(AuthContext);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleLogin = async () => {
     // Basic validation
@@ -38,6 +39,26 @@ export default function LoginScreen() {
     } catch (error) {
       // Error is already handled in the context
       console.log('Login failed:', error);
+    }
+  };
+
+  const handleForgotPassword = async () => {
+    if (!email.trim()) {
+      alert('Please enter your email address first');
+      return;
+    }
+
+    if (!email.includes('@')) {
+      alert('Please enter a valid email address');
+      return;
+    }
+
+    try {
+      await resetPassword(email);
+      alert('Password reset email sent! Please check your inbox.');
+    } catch (error) {
+      // Error is already handled in the context and displayed in UI
+      console.log('Password reset failed:', error);
     }
   };
 
@@ -87,14 +108,25 @@ export default function LoginScreen() {
                   setPassword(text);
                   if (error) clearError();
                 }}
-                secureTextEntry
+                secureTextEntry={!showPassword}
                 autoComplete="current-password"
                 placeholderTextColor="#666"
               />
+              <Pressable onPress={() => setShowPassword(!showPassword)} style={styles.eyeButton}>
+                <IconSymbol
+                  name={showPassword ? "eye.slash" : "eye"}
+                  size={20}
+                  color="#666"
+                />
+              </Pressable>
             </ThemedView>
 
             <Pressable style={styles.loginButton} onPress={handleLogin}>
               <ThemedText style={styles.loginButtonText}>Log-in</ThemedText>
+            </Pressable>
+
+            <Pressable style={styles.forgotPasswordButton} onPress={handleForgotPassword}>
+              <ThemedText style={styles.forgotPasswordText}>Forgot Password?</ThemedText>
             </Pressable>
           </ThemedView>
 
@@ -193,5 +225,17 @@ const styles = StyleSheet.create({
         color: '#c62828',
         fontSize: 14,
         textAlign: 'center',
+    },
+    forgotPasswordButton: {
+        marginTop: 15,
+        alignItems: 'center',
+    },
+    forgotPasswordText: {
+        color: '#0a7ea4',
+        fontSize: 14,
+        textDecorationLine: 'underline',
+    },
+    eyeButton: {
+        padding: 5,
     },
 });

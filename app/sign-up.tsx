@@ -13,6 +13,8 @@ export default function SignupScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const handleSignup = async () => {
     // Basic validation
@@ -139,10 +141,17 @@ export default function SignupScreen() {
                 setPassword(text);
                 if (error) clearError();
               }}
-              secureTextEntry
+              secureTextEntry={!showPassword}
               autoComplete="new-password"
               placeholderTextColor="#666"
             />
+            <Pressable onPress={() => setShowPassword(!showPassword)} style={styles.eyeButton}>
+              <IconSymbol
+                name={showPassword ? "eye.slash" : "eye"}
+                size={20}
+                color="#666"
+              />
+            </Pressable>
           </ThemedView>
 
           <ThemedView style={styles.inputContainer}>
@@ -155,10 +164,17 @@ export default function SignupScreen() {
                 setConfirmPassword(text);
                 if (error) clearError();
               }}
-              secureTextEntry
+              secureTextEntry={!showConfirmPassword}
               autoComplete="new-password"
               placeholderTextColor="#666"
             />
+            <Pressable onPress={() => setShowConfirmPassword(!showConfirmPassword)} style={styles.eyeButton}>
+              <IconSymbol
+                name={showConfirmPassword ? "eye.slash" : "eye"}
+                size={20}
+                color="#666"
+              />
+            </Pressable>
           </ThemedView>
 
           <Pressable style={styles.signupButton} onPress={handleSignup}>
@@ -271,5 +287,8 @@ const styles = StyleSheet.create({
     color: '#c62828',
     fontSize: 14,
     textAlign: 'center',
+  },
+  eyeButton: {
+    padding: 5,
   },
 });

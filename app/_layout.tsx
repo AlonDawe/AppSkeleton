@@ -29,8 +29,8 @@ function RootLayoutNav() {
           <Stack.Protected guard={isLoggedIn}>
           </Stack.Protected>
           <Stack.Protected guard={!isLoggedIn}>
-              <Stack.Screen name="sign-up" options={{ headerShown: false }} />
               <Stack.Screen name="log-in" options={{ headerShown: false }} />
+              <Stack.Screen name="sign-up" options={{ headerShown: false }} />
               <Stack.Screen name="modal" options={{
                   presentation: 'modal',
                   title: 'Privacy Policy'}} />

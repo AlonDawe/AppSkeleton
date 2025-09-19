@@ -5,6 +5,7 @@ import {
     createUserWithEmailAndPassword,
     signOut,
     onAuthStateChanged,
+    sendPasswordResetEmail,
     User
 } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
@@ -40,6 +41,7 @@ type AuthState = {
     logIn: (email: string, password: string) => Promise<void>;
     signUp: (email: string, password: string, firstName: string, lastName: string) => Promise<void>;
     logOut: () => Promise<void>;
+    resetPassword: (email: string) => Promise<void>;
     clearError: () => void;
     error: string | null;
 };
@@ -53,6 +55,7 @@ export const AuthContext = createContext<AuthState>({
     logIn: async () => {},
     signUp: async () => {},
     logOut: async () => {},
+    resetPassword: async () => {},
     clearError: () => {},
     error: null,
 });
@@ -138,6 +141,28 @@ export function AuthProvider({ children }: PropsWithChildren ) {
         }
     };
 
+    const resetPassword = async (email: string) => {
+        try {
+            setError(null);
+            setIsLoading(true);
+
+            await sendPasswordResetEmail(auth, email);
+            console.log('Password reset email sent successfully to:', email);
+            // Success - no error to set
+
+        } catch (error: any) {
+            console.log('Password reset error details:', {
+                code: error.code,
+                message: error.message,
+                email: email
+            });
+            setError(getFirebaseErrorMessage(error.code));
+            throw error; // Re-throw so the UI can handle success/failure
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (user) => {
             if (user) {
@@ -154,7 +179,7 @@ export function AuthProvider({ children }: PropsWithChildren ) {
     }, []);
 
     return (
-        <AuthContext.Provider value={{ isLoggedIn, isLoading, user, logIn, signUp, logOut, clearError, error }}>
+        <AuthContext.Provider value={{ isLoggedIn, isLoading, user, logIn, signUp, logOut, resetPassword, clearError, error }}>
             {children}
         </AuthContext.Provider>
     );
